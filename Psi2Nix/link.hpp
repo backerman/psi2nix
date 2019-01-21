@@ -24,7 +24,7 @@ class Link : public QObject
     Q_OBJECT
 private:
     QIODevice *port = nullptr;
-    QBuffer buf;
+    QBuffer writeBuf;
     QMutex busy;
     /// \brief The number of bytes remaining to write in the current packet.
     qint64 numBytesToWrite = 0;

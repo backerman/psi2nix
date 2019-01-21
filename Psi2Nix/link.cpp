@@ -64,37 +64,37 @@ bool Link::send(PacketType pType, const QByteArray &data) {
         checksum = static_cast<quint16>((checksum << 8)
                                         ^ crc16table[b ^ (checksum >> 8)]);
     };
-    buf.open(QBuffer::ReadWrite);
-    buf.write(packetStart, sizeof(packetStart));
-    buf.putChar(0x01); // channel number
+    writeBuf.open(QBuffer::ReadWrite);
+    writeBuf.write(packetStart, sizeof(packetStart));
+    writeBuf.putChar(0x01); // channel number
     checkByte(0x01);
     quint8 seqAndType = static_cast<quint8>(
                 (static_cast<quint8>(pType) << 3)
                 | static_cast<quint8>(nextSeq));
-    buf.putChar(static_cast<char>(seqAndType));
+    writeBuf.putChar(static_cast<char>(seqAndType));
     checkByte(seqAndType);
     if (seqAndType == 0x10) {
         // Escape it.
-        buf.putChar(static_cast<char>(seqAndType));
+        writeBuf.putChar(static_cast<char>(seqAndType));
     }
     // Write data, escaping 0x10.
     for (auto b : data) {
-        buf.putChar(b);
+        writeBuf.putChar(b);
         checkByte(static_cast<quint8>(b));
         // Any 0x10 byte is repeated for sending.
         if (b == 0x10) {
-            buf.putChar(b);
+            writeBuf.putChar(b);
         }
     }
-    buf.write(dataEnd, sizeof(dataEnd));
+    writeBuf.write(dataEnd, sizeof(dataEnd));
     // Append checksum.
-    buf.putChar(static_cast<char>(checksum >> 8));
-    buf.putChar(static_cast<char>(checksum & 0xff));
+    writeBuf.putChar(static_cast<char>(checksum >> 8));
+    writeBuf.putChar(static_cast<char>(checksum & 0xff));
 
     // Call port.write method. Ensure that this method can't be called again
     // until write finishes or times out.
-    numBytesToWrite = buf.size();
-    port->write(buf.data());
+    numBytesToWrite = writeBuf.size();
+    port->write(writeBuf.data());
 
     // Increment sequence number for next packet.
     nextSeq++;

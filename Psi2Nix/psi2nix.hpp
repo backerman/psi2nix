@@ -20,6 +20,10 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
+private slots:
+    void on_action_Quit_triggered();
+    void on_serialPort_currentIndexChanged(int index);
+
 private:
     Ui::Psi2Nix *ui;
 };

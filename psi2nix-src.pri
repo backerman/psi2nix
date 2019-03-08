@@ -6,5 +6,5 @@ SOURCES += \
 HEADERS += \
     $$MAINSRCPATH/link.hpp
 
-DISTFILES += \
-    $$PWD/LICENSE.txt
+STATECHARTS += \
+    $$MAINSRCPATH/serialprotocol.scxml

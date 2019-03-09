@@ -15,12 +15,14 @@ class TestLink : public QObject
 private:
     std::unique_ptr<CommsLink::Link> link;
     std::unique_ptr<MockSerial> port;
-
+    std::unique_ptr<CommsLink::Message> receivedMsg;
 private slots:
     void testSendData();
     void testSendLinkRequest();
     void testReceiveData();
+    void testReceiveMultipleReads();
     void init();
+    void receiveMessage(CommsLink::Message);
 };
 
 void TestLink::init() {
@@ -71,9 +73,16 @@ void TestLink::testSendLinkRequest() {
     QCOMPARE(actual, expected);
 }
 
+void TestLink::receiveMessage(CommsLink::Message m) {
+    receivedMsg = std::make_unique<CommsLink::Message>(m);
+}
+
 void TestLink::testReceiveData() {
     QSignalSpy spy(&(*port), &QIODevice::readyRead);
+    connect(&(*link), &CommsLink::Link::packetReceived,
+            this, &TestLink::receiveMessage);
     QVERIFY(spy.isValid());
+    QVERIFY(!receivedMsg);
     const quint8 goodData[]{
         0x16, 0x10, 0x02,       // preamble
         0x01,                   // channel number
@@ -84,11 +93,43 @@ void TestLink::testReceiveData() {
     port->sendData(reinterpret_cast<const char *>(goodData),
                          sizeof(goodData));
     QVERIFY(spy.wait(2500));
-    std::unique_ptr<CommsLink::Message> msg = link->parseMessage();
-    QVERIFY(msg);
-    QVERIFY(msg->type == CommsLink::PacketType::linkRequest);
-    QVERIFY(msg->sequenceNo == 0);
-    QVERIFY(msg->data.size() == 0);
+    QVERIFY(receivedMsg);
+    QVERIFY(receivedMsg->type == CommsLink::PacketType::linkRequest);
+    QVERIFY(receivedMsg->sequenceNo == 0);
+    QVERIFY(receivedMsg->data.size() == 0);
+    QVERIFY(link->readBuf.size() == 0);
+    receivedMsg.reset();
+}
+
+void TestLink::testReceiveMultipleReads() {
+    QSignalSpy spy(&(*port), &QIODevice::readyRead);
+    connect(&(*link), &CommsLink::Link::packetReceived,
+            this, &TestLink::receiveMessage);
+    QVERIFY(spy.isValid());
+    QVERIFY(!receivedMsg);
+    const quint8 goodData[]{
+        0x16, 0x10, 0x02,       // preamble
+        0x01,                   // channel number
+        0x10, 0x10,             // type 2, seq 0
+        0x10, 0x03,             // postamble
+        0x00, 0x5C              // CRC
+    };
+    int readCount = 0;
+    for (size_t pos = 0; pos < sizeof(goodData); pos += 2) {
+        // We have an even-length message, so the size of our
+        // chunks evenly divides it.
+        Q_ASSERT(pos + 2 <= sizeof(goodData));
+        port->sendData(reinterpret_cast<const char *>(goodData) + pos,
+                       2);
+        readCount++;
+        QVERIFY(spy.wait(100));
+        QVERIFY(spy.count() == readCount);
+    }
+    // QVERIFY(spy.wait(2500));
+    QVERIFY(receivedMsg);
+    QVERIFY(receivedMsg->type == CommsLink::PacketType::linkRequest);
+    QVERIFY(receivedMsg->sequenceNo == 0);
+    QVERIFY(receivedMsg->data.size() == 0);
     QVERIFY(link->readBuf.size() == 0);
 }
 

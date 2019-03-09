@@ -150,14 +150,14 @@ void Link::readyRead() {
     readTimer->start(timeoutValue);
     readBuf.append(port->readAll());
     qint64 bytesRead = bytesAvail - port->bytesAvailable();
-    readBuf[readBuf.size()] = '\0';
     if (bytesRead < bytesAvail) {
         qWarning() << "Unexpected short read";
     }
-    if (validMessageReceived()) {
+    auto msg = parseMessage();
+    if (msg) {
         // There's a valid message here.
         readTimer->stop();
-       // emit packetReceived(PacketType pType, const QByteArray &);
+        emit packetReceived(*msg);
     }
 }
 

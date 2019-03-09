@@ -25,29 +25,19 @@ qint64 MockSerial::readData(char *data, qint64 maxSize) {
     if (maxSize < 0) {
         return -1;
     }
+    recvBuf.seek(0);
     qDebug() << "recvBuf pos" << recvBuf.pos()
              << "; available " << recvBuf.bytesAvailable();
     auto actualReadLength = recvBuf.read(data, maxSize);
     qDebug() << "Actual read length:" << actualReadLength;
+    // drop the bytes we read
+    recvBuf.buffer().remove(0, static_cast<int>(actualReadLength));
+    recvBuf.seek(0);
     return actualReadLength;
-//    const char *source = recvBuf.data();
-//    char *dest   = data;
-//    qint64 copyLength = recvBuf.size();
-//    if (maxSize < copyLength) {
-//        copyLength = maxSize;
-//    }
-//    memcpy(dest, source, static_cast<size_t>(copyLength));
-//    recvBuf.remove(0, static_cast<int>(copyLength));
-//    return copyLength;
 }
 
 qint64 MockSerial::writeData(const char *data, qint64 maxSize) {
     return sendBuf.write(data, maxSize);
-//    sendBuf.append(data, static_cast<int>(maxSize));
-//    qDebug() << "Yeah, this is where I emit.";
-//    emit bytesWritten(maxSize);
-//    qDebug() << "Returned from emission.";
-//    return maxSize;
 }
 
 void MockSerial::sendData(const QByteArray &data) {
@@ -59,7 +49,6 @@ void MockSerial::sendData(const char *data, qint64 size) {
     auto bytesWritten = recvBuf.write(data, size);
     qDebug() << "bytes written:" << bytesWritten
              << "; pos: " << recvBuf.pos();
-    recvBuf.seek(0);
     emit readyRead();
     qDebug() << "readyRead emitted.";
 }

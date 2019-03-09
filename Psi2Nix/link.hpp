@@ -43,6 +43,11 @@ private:
     /// to eliminate an alignment warning.
     quint64 nextSeq = 0;
     bool validMessageReceived();
+    /// \brief Read a message from the buffer.
+    /// \param popCompleteMessage Iff true and a valid and complete
+    /// message is in the buffer, clear the buffer afterwards.
+    /// \return The message, or nullptr if none available.
+    std::unique_ptr<Message> parseMessage(bool popCompleteMessage = true);
 public:
     explicit Link(QObject *parent = nullptr);
     /// \brief Send the contents of data to the device.
@@ -51,11 +56,6 @@ public:
     /// \return true if we could start the send; false if the link
     /// was busy.
     bool send(PacketType type, const QByteArray &data);
-    /// \brief Read a message from the buffer.
-    /// \param popCompleteMessage Iff true and a valid and complete
-    /// message is in the buffer, clear the buffer afterwards.
-    /// \return The message, or nullptr if none available.
-    std::unique_ptr<Message> parseMessage(bool popCompleteMessage = true);
     void setPort(QIODevice &port);
 signals:
     void packetReceived(Message);

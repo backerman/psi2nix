@@ -240,7 +240,7 @@ std::unique_ptr<Message> Link::parseMessage(bool popCompleteMessage){
         }
     }
     if (popCompleteMessage) {
-        readBuf.truncate(0);
+        readBuf.remove(0, postamblePos + 4);
     }
     return msg;
 }

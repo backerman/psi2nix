@@ -7,6 +7,7 @@
 #include <QIODevice>
 #include <QObject>
 
+/// \brief A mock serial port to be used for testing.
 class MockSerial : public QIODevice
 {
     Q_OBJECT

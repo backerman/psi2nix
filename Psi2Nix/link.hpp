@@ -31,7 +31,7 @@ struct Message {
     /// \brief The message's type.
     PacketType type;
     /// \brief The message's sequence number (valid: 0..7).
-    uint8_t    sequenceNo;
+    uint8_t    sequenceNo = 0;
     /// \brief The data to be sent.
     ///
     /// Byte-stuffing will be automatically added to sent messages and
@@ -50,7 +50,7 @@ private:
     /// \brief The QIODevice over which this Link communicates.
     QIODevice *port = nullptr;
     /// \brief A timer restarted when traffic is received; will trigger a
-    /// timeout if more than 5000 ms pass without more traffic or a completed
+    /// timeout if more than 250 ms passes without more traffic or a completed
     /// message.
     QTimer *readTimer = nullptr;
     /// \brief An internal buffer into which traffic to be sent is written.

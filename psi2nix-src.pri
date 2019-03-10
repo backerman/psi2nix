@@ -5,6 +5,3 @@ SOURCES += \
 
 HEADERS += \
     $$MAINSRCPATH/link.hpp
-
-STATECHARTS += \
-    $$MAINSRCPATH/serialprotocol.scxml

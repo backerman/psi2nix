@@ -7,4 +7,5 @@ SUBDIRS += \
 OTHER_FILES=psi2nix-src.pri
 
 DISTFILES += \
-    LICENSE.txt
+    LICENSE.txt \
+    README.md

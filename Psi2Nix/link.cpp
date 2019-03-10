@@ -66,7 +66,7 @@ void Link::setPort(QIODevice &aPort) {
             this, &Link::readyRead);
 }
 
-bool Link::send(PacketType pType, const QByteArray &data) {
+bool Link::send(const Message &msg) {
     if (!busy.tryLock()) {
         // Unable to acquire a lock.
         return false;
@@ -89,12 +89,12 @@ bool Link::send(PacketType pType, const QByteArray &data) {
     checkByte(0x01);
     // Increment sequence number for next packet - only if data.
     quint8 thisSeq = 0;
-    if (pType == PacketType::data) {
+    if (msg.type == PacketType::data) {
         nextSeq++;
         thisSeq = static_cast<quint8>(nextSeq);
     }
     quint8 seqAndType = static_cast<quint8>(
-                (static_cast<quint8>(pType) << 3)
+                (static_cast<quint8>(msg.type) << 3)
                 | thisSeq);
     writeBuf.putChar(static_cast<char>(seqAndType));
     checkByte(seqAndType);
@@ -103,7 +103,7 @@ bool Link::send(PacketType pType, const QByteArray &data) {
         writeBuf.putChar(static_cast<char>(seqAndType));
     }
     // Write data, escaping 0x10.
-    for (auto b : data) {
+    for (auto b : msg.data) {
         writeBuf.putChar(b);
         checkByte(static_cast<quint8>(b));
         // Any 0x10 byte is repeated for sending.

@@ -38,8 +38,11 @@ void TestLink::testSendData()
     QSignalSpy spy(&(*port), &QIODevice::bytesWritten);
     QVERIFY(spy.isValid());
     const char testCaseData[] = "FILE";
-    // -1 here because we don't send the terminal \0.
-    const QByteArray testCase(testCaseData, sizeof(testCaseData) - 1);
+    const CommsLink::Message msg{
+        CommsLink::PacketType::data,
+                // -1 here because we don't send the terminal \0.
+                QByteArray(testCaseData, sizeof(testCaseData) - 1)
+    };
     const quint8 expectedData[]{
         0x16, 0x10, 0x02,       // preamble
         0x01,                   // channel number
@@ -50,7 +53,7 @@ void TestLink::testSendData()
     };
     const QByteArray expected(reinterpret_cast<const char *>(expectedData),
                               sizeof(expectedData));
-    bool success = link->send(CommsLink::PacketType::data, testCase);
+    bool success = link->send(msg);
     QVERIFY(success);
     QVERIFY(spy.wait(250));
     const QByteArray &actual = port->sendBuf.buffer();
@@ -66,7 +69,11 @@ void TestLink::testSendLinkRequest() {
         0x10, 0x03,             // postamble
         0x00, 0x5C              // CRC
     };
-    link->send(CommsLink::PacketType::linkRequest, QByteArray());
+    const CommsLink::Message msg{
+        CommsLink::PacketType::linkRequest,
+                QByteArray{}
+    };
+    link->send(msg);
     const QByteArray expected(reinterpret_cast<const char *>(expectedData),
                               sizeof(expectedData));
     QVERIFY(spy.wait(250));

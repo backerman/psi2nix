@@ -20,7 +20,8 @@ enum struct PacketType : uint8_t {
     acknowledge = 0,
     disconnect  = 1,
     linkRequest = 2,
-    data        = 3
+    data        = 3,
+    unknown     = 255
 };
 
 /// \brief A message to be transmitted over the link.
@@ -36,6 +37,10 @@ struct Message {
     /// Byte-stuffing will be automatically added to sent messages and
     /// removed from received messages.
     QByteArray data;
+
+    Message(PacketType t, const QByteArray &d) :
+        type(t), data(d) {}
+    Message() : type(PacketType::unknown), data{} {}
 };
 
 class Link : public QObject
@@ -67,12 +72,10 @@ private:
     std::unique_ptr<Message> parseMessage(bool popCompleteMessage = true);
 public:
     explicit Link(QObject *parent = nullptr);
-    /// \brief Send the contents of data to the device.
-    /// \param type The packet type to send.
-    /// \param data The data to send.
+    /// \brief Send the provided message to the device.
     /// \return true if we could start the send; false if the link
     /// was busy.
-    bool send(PacketType type, const QByteArray &data);
+    bool send(const Message &msg);
     /// \brief Set the port that this Link should use.
     void setPort(QIODevice &port);
 signals:

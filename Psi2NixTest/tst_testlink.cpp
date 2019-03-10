@@ -28,6 +28,7 @@ private slots:
 void TestLink::init() {
     link = std::make_unique<CommsLink::Link>();
     port = std::make_unique<MockSerial>();
+    receivedMsg.reset();
     link->setPort(*port);
 }
 
@@ -98,7 +99,6 @@ void TestLink::testReceiveData() {
     QVERIFY(receivedMsg->sequenceNo == 0);
     QVERIFY(receivedMsg->data.size() == 0);
     QVERIFY(link->readBuf.size() == 0);
-    receivedMsg.reset();
 }
 
 void TestLink::testReceiveMultipleReads() {

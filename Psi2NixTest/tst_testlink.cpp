@@ -125,7 +125,6 @@ void TestLink::testReceiveMultipleReads() {
         QVERIFY(spy.wait(100));
         QVERIFY(spy.count() == readCount);
     }
-    // QVERIFY(spy.wait(2500));
     QVERIFY(receivedMsg);
     QVERIFY(receivedMsg->type == CommsLink::PacketType::linkRequest);
     QVERIFY(receivedMsg->sequenceNo == 0);

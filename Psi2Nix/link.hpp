@@ -72,6 +72,7 @@ private:
     std::unique_ptr<Message> parseMessage(bool popCompleteMessage = true);
 public:
     explicit Link(QObject *parent = nullptr);
+    ~Link();
     /// \brief Send the provided message to the device.
     /// \return true if we could start the send; false if the link
     /// was busy.

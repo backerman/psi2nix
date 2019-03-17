@@ -30,6 +30,10 @@ Link::Link(QObject *parent) : QObject(parent)
             this, &Link::readTimeout);
 }
 
+Link::~Link() {
+    delete readTimer;
+}
+
 // Generate the lookup table for our CRC-16 function.
 constexpr quint16 CRC16_POLYNOMIAL = 0xa001;
 constexpr quint16 crc16Byte(quint8 b) {

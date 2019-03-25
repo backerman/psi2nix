@@ -11,8 +11,11 @@ APPPATH=../Psi2Nix
 INCLUDEPATH += $$APPPATH
 DEPENDPATH += $$APPPATH
 
-SOURCES +=  tst_testlink.cpp \
-    mockserial.cpp
+SOURCES +=  \
+    mockserial.cpp \
+    main.cpp \
+    testlink.cpp
 
 HEADERS += \
-    mockserial.hpp
+    mockserial.hpp \
+    testlink.hpp

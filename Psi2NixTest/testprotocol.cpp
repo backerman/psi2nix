@@ -28,7 +28,7 @@ void TestProtocol::testLinkRequestSent() {
         0x16, 0x10, 0x02,       // preamble
         0x01,                   // channel number
         0x10, 0x10,             // type/counter
-        0x10, 0x03,              // end of packet
+        0x10, 0x03,             // end of packet
         0x00, 0x5c              // CRC
     };
     QByteArray expected(reinterpret_cast<const char *>(expectedData),

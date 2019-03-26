@@ -14,8 +14,10 @@ DEPENDPATH += $$APPPATH
 SOURCES +=  \
     mockserial.cpp \
     main.cpp \
-    testlink.cpp
+    testlink.cpp \
+    testprotocol.cpp
 
 HEADERS += \
     mockserial.hpp \
-    testlink.hpp
+    testlink.hpp \
+    testprotocol.hpp

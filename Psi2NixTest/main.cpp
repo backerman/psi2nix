@@ -3,6 +3,7 @@
 
 // Test fixture includes
 #include "testlink.hpp"
+#include "testprotocol.hpp"
 
 int main(int argc, char **argv)
 {
@@ -15,5 +16,7 @@ int main(int argc, char **argv)
 #else
     QTest::setMainSourcePath(__FILE__);
 #endif
-    return QTest::qExec(new TestLink, argc, argv);
+    auto result = QTest::qExec(new TestLink, argc, argv);
+    result |= QTest::qExec(new TestProtocol, argc, argv);
+    return result;
 }
